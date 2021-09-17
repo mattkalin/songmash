@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Song Mash: Get song info</title>
+  </head>
+  <body>
+    <script src="https://apis.google.com/js/client:api.js"></script>
+    <script src="spotify.js"></script>
+    <script type="text/javascript">
+      var token = getSpotifyToken();
+      var googleToken = getGoogleToken(); 
+      // document.write(token);
+      var id = "5Z01UMMf7V1o0MzF86s6WJ"; // lose yourself by eminem
+      id = "2gZUPNdnz5Y45eiGxpHGSc"; // power by kanye
+      id = "57bgtoPSgt236HzfBOd8kj"; // thunderstruck
+      // var id = window.prompt("Please enter a Spotify song ID");
+      var songInfo = getSongInfo(id, token);
+      // document.writeln(songInfo);
+      var albumCover = songInfo.album.images[0];
+      var str = "<img src='" + albumCover.url +
+      // "' height='" + albumCover.height +
+      // "' width='" + albumCover.width + "' >";
+      "' width='15%' ><br>";
+      document.writeln(str)
+
+      var audio;
+      if(songInfo.preview_url == null){
+        audio = "No audio preview available"
+      } else {
+        audio = "<audio controls width='15%' height='100'>" +
+        "<source src='" + songInfo.preview_url +
+        "'type='audio/mp3'>Your browser doesn't support html5 audio</audio>";
+      }
+      document.write(audio);
+
+      selectRandomIds();
+
+      // var song1 = getRandomSong();
+      // var song2 = getRandomSong();
+      /*
+      after voting (or abstaining), have a thing at the top saying
+      "You previously voted {song1} > {song2}. If this was a
+      mistake, click here to undo"
+      */
+
+      /*
+      how do I prevent people from writing a bot that stuffs the ballot boxes?
+      */
+      /*
+      catch error: generate a new token
+      */
+    </script>
+  </body>
+</html>
