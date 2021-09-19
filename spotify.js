@@ -21,7 +21,7 @@ function getSpotifyToken(){
   // let buff = new Buffer(client_id + ':' + client_secret);
   // document.writeln("Getting token<br>")
   var auth = "Basic " + btoa(clientID + ":" + clientSecret); // pretty sure this is correct
-  // document.write(auth);
+  // songTable.innerHTML += auth);
   // clientID + ":" + clientSecret; // not sure about the colon :
   var body = "grant_type=client_credentials";
   var xmlHttp = new XMLHttpRequest();
@@ -110,13 +110,31 @@ function getSpotifyToken(){
   //   // }
 }
 
+function updateToken(token){
+  /*
+  check if token is expired
+  if yes, return new token
+  else, return old token
+  */
+  var now = new Date();
+  if(now - token.created_at >= token.expires_in * 1000){
+    return getSpotifyToken();
+  } else {
+    return token;
+  }
+}
+
 function displaySongTable(ids, token){
+  token = updateToken(token); // get new token if expired
   // ids is an array of spotify song ID
   var songsInfo = [];
   for(var i = 0; i < ids.length; i++){
     songsInfo[i] = getSongInfo(ids[i], token);
   }
-  document.write("<table>");
+  songTable = document.getElementById("songTable");
+  tableStr = "";
+  // document.write("<table>");
+  tableStr += "<table>";
   /*
   rows
   album art
@@ -127,56 +145,57 @@ function displaySongTable(ids, token){
   album
   */
   // album art
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
-    document.write("<img src='" +
+    tableStr += "<td>";
+    tableStr += "<img src='" +
     songsInfo[i].album.images[0].url +
-    "' width='20%' >");
-    document.write("</td>");
+    "' width='40%' id='albumCover" + (i + 1) + "' >";
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
+  // albumCover.onclick = processVote;
 
   // title
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
+    tableStr += "<td>";
     // document.write("Title: ")
-    document.write(songsInfo[i].name);
-    document.write("</td>");
+    tableStr += songsInfo[i].name;
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
 
   // artist
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
+    tableStr += "<td>";
     // document.write("Artist(s): ")
     for(var j = 0; j < songsInfo[i].artists.length; j++){
       if(j > 0){
-        document.write(", ");
+        tableStr += ", ";
       }
-      document.write(songsInfo[i].artists[j].name);
+      tableStr += songsInfo[i].artists[j].name;
     }
-    document.write("</td>");
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
 
   // album
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
+    tableStr += "<td>";
     // document.write("Album: ")
-    document.write(songsInfo[i].album.name);
-    document.write("</td>");
+    tableStr += songsInfo[i].album.name;
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
 
   // audio preview
   var audio;
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
+    tableStr += "<td>";
     // document.write("Album: ")
     if(songsInfo[i].preview_url == null){
       audio = "No audio preview available"
@@ -185,16 +204,16 @@ function displaySongTable(ids, token){
       "<source src='" + songsInfo[i].preview_url +
       "'type='audio/mp3'>Your browser doesn't support html5 audio</audio>";
     }
-    document.write(audio);
-    document.write("</td>");
+    tableStr += audio;
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
 
   // spotify link
   var spotify;
-  document.write("<tr>");
+  tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
-    document.write("<td>");
+    tableStr += "<td>";
     // document.write("Album: ")
     if(songsInfo[i].external_urls.spotify == null){
       spotify = "No Spotify link available"
@@ -202,15 +221,55 @@ function displaySongTable(ids, token){
       spotify = "<a href='" + songsInfo[i].external_urls.spotify +
       "' target='_blank' rel='noopener noreferrer'>Listen on Spotify here</a>"
     }
-    document.write(spotify);
-    document.write("</td>");
+    tableStr += spotify;
+    tableStr += "</td>";
   }
-  document.write("</tr>");
+  tableStr += "</tr>";
 
-  document.write("</table>");
+  // document.write("<tr>");
+  // for(var i = 0; i < ids.length; i++){
+  //   document.write("<td>");
+  //   // document.write("Album: ")
+  //   document.write("<b onclick='processVote(" + ids[i] + ", [" + ids +
+  //     "])'>Vote</b>");
+  //   document.write("</td>");
+  // }
+  // document.write("</tr>");
+  //
+  tableStr += "</table>";
+  songTable.innerHTML = tableStr;
+  for(var i = 0; i < ids.length; i++){
+    document.getElementById("albumCover" + (i + 1)).onclick = processVote;
+  }
+  document.addEventListener('play', pauseOtherAudio, true); 
+
 }
 
-function selectRandomIds(){
+function pauseOtherAudio(e){
+  var audios = document.getElementsByTagName('audio');
+    for(var i = 0, len = audios.length; i < len;i++){
+        if(audios[i] != e.target){
+            audios[i].pause();
+        }
+    }
+}
+
+function processVote(winner, ids){
+  /*
+  send data to some database
+  submit an http request?
+  */
+  // window.alert("Vote successful");
+
+  refreshTable();
+}
+
+function refreshTable(){
+  var ids = selectRandomIds(songList);
+  displaySongTable(ids, token);
+}
+
+function selectRandomIds(data){
   // var driveUrl;
   // driveUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTcz95gzMl5NYljq7f3SWnt3G8-LbknG8fSGe-MlK5-n5aeVO1TQezwJBFFMSUQPoLOaR9aG0t7s1A3/pub?gid=0&single=true&output=csv";
   // driveUrl = "https://doc-0g-3o-sheets.googleusercontent.com/pub/70cmver1f290kjsnpar5ku2h9g/mmqosm31297rd99bf5gepkn7u0/1631890710000/107443550707787196845/*/e@2PACX-1vTcz95gzMl5NYljq7f3SWnt3G8-LbknG8fSGe-MlK5-n5aeVO1TQezwJBFFMSUQPoLOaR9aG0t7s1A3?gid=0&single=true&output=csv"
@@ -241,7 +300,41 @@ function selectRandomIds(){
 
   // return parseCsv(readGoogleSheet(googleToken));
 
-  
+  // just doing this with two
+  var rand1 = data[Math.floor(Math.random() * data.length)];
+  rand2 = rand1;
+  while(rand2 == rand1){
+    rand2 = data[Math.floor(Math.random() * data.length)];
+  }
+  return [rand1, rand2];
+}
+
+function getIdData(){
+  var url = "https://raw.githubusercontent.com/mattkalin/songmash/a43a8e6b0e3663f2fdffbeefdd6442589ad722e7/song%20ids.csv";
+  var data = readCsv(url).split("\r\n");
+  if(data[0] == "id"){
+    data.shift();
+  }
+  return data;
+}
+
+function readCsv(url){
+  // jQuery.ajax({
+  //     url: url,
+  //     type: 'get',
+  //     dataType: 'json',
+  //     success: function(data) {
+  //         console.log(data);
+  //     },
+  //     error: function(jqXHR, textStatus, errorThrow){
+  //         alert("Error: " + jqXHR['responseText']);
+  //     }
+  // });
+
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.open("GET", url, false);
+  xmlHttp.send( null );
+  return xmlHttp.responseText;
 }
 
 
@@ -249,30 +342,30 @@ function parseCsv(data){
   window.alert("CSV read successfully")
 }
 
-function readGoogleSheet(){
-  // var spreadsheetId = "1YOWX_9lH2Jw4JlwW4PmQLEYbXcQq6fj-SVvuCzp_gzY";
-  // var apiKey = "AIzaSyDPq83Az7C2swdtGefeJrLIAw9tYwPDMJM"; // restricted to only google sheets api
-  // var authCode = "4/0AX4XfWg1eDhfkbPt8HDuujnsHgENJIB6tzkAYHmgjYBR9blt0pRAKXZAa_m6KKB-yDIp9Q" // OAuth 2.0 authorization code
-  // var range = "A2:A5000";
-  // googleUrl = "https://sheets.googleapis.com/v4/spreadsheets/" +
-  //   spreadsheetId + "/values/" + range;
-  // var xmlHttp = new XMLHttpRequest();
-  // xmlHttp.open( "GET", googleUrl, false ); // false for synchronous request
-  // xmlHttp.setRequestHeader("key", apiKey);
-  // xmlHttp.setRequestHeader("scope", "https://www.googleapis.com/auth/spreadsheets.readonly");
-  // xmlHttp.send( null );
-  // var data = xmlHttp.responseText;
-  // return data;
-
-}
-
-function getGoogleToken(){
-  var body = "grant_type='refresh_token'&refresh_token='1//04TnRNi60i9cQCgYIARAAGAQSNwF-L9IrYLPxtMNhocMRn8laFBAjD__vmpugy1nDIQNeE9ziUvvcHJLhYirTTh3yA1_rzmNjWpk'&client_id='407408718192.apps.googleusercontent.com'" // client_secret='************'&
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open( "POST", "http://oauth2.googleapis.com", false ); // false for synchronous request
-  xmlHttp.setRequestHeader("Content-length", '223');
-  xmlHttp.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-  xmlHttp.setRequestHeader("user-agent", "google-oauth-playground");
-  xmlHttp.send( body );
-
-}
+// function readGoogleSheet(){
+//   // var spreadsheetId = "1YOWX_9lH2Jw4JlwW4PmQLEYbXcQq6fj-SVvuCzp_gzY";
+//   // var apiKey = "AIzaSyDPq83Az7C2swdtGefeJrLIAw9tYwPDMJM"; // restricted to only google sheets api
+//   // var authCode = "4/0AX4XfWg1eDhfkbPt8HDuujnsHgENJIB6tzkAYHmgjYBR9blt0pRAKXZAa_m6KKB-yDIp9Q" // OAuth 2.0 authorization code
+//   // var range = "A2:A5000";
+//   // googleUrl = "https://sheets.googleapis.com/v4/spreadsheets/" +
+//   //   spreadsheetId + "/values/" + range;
+//   // var xmlHttp = new XMLHttpRequest();
+//   // xmlHttp.open( "GET", googleUrl, false ); // false for synchronous request
+//   // xmlHttp.setRequestHeader("key", apiKey);
+//   // xmlHttp.setRequestHeader("scope", "https://www.googleapis.com/auth/spreadsheets.readonly");
+//   // xmlHttp.send( null );
+//   // var data = xmlHttp.responseText;
+//   // return data;
+//
+// }
+//
+// function getGoogleToken(){
+//   var body = "grant_type='refresh_token'&refresh_token='1//04TnRNi60i9cQCgYIARAAGAQSNwF-L9IrYLPxtMNhocMRn8laFBAjD__vmpugy1nDIQNeE9ziUvvcHJLhYirTTh3yA1_rzmNjWpk'&client_id='407408718192.apps.googleusercontent.com'" // client_secret='************'&
+//   var xmlHttp = new XMLHttpRequest();
+//   xmlHttp.open( "POST", "http://oauth2.googleapis.com", false ); // false for synchronous request
+//   xmlHttp.setRequestHeader("Content-length", '223');
+//   xmlHttp.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+//   xmlHttp.setRequestHeader("user-agent", "google-oauth-playground");
+//   xmlHttp.send( body );
+//
+// }
