@@ -26,6 +26,7 @@
     token.created_at = new Date();
     // refresh token? timestamp and check if it's been an hour?
     var songList = getIdData();
+    var ratingsJson = getRatingsData(); 
     var ids = selectRandomIds(songList);
     // ["5Z01UMMf7V1o0MzF86s6WJ", //"2gZUPNdnz5Y45eiGxpHGSc",
     // "57bgtoPSgt236HzfBOd8kj"];
@@ -34,6 +35,7 @@
     // thunderstruck
     displaySongTable(ids, token);
 
+    // document.write(getRatingsData());
 
     </script>
   </body>

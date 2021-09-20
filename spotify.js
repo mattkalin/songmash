@@ -152,7 +152,7 @@ function displaySongTable(ids, token){
     tableStr += "<td>";
     tableStr += "<img src='" +
     songsInfo[i].album.images[0].url +
-    "' width='50%' id='albumCover" + (i + 1) + "' >";
+    "' width='50%' id='albumCover" + (i) + "' >";
     tableStr += "</td>";
   }
   tableStr += "</tr>";
@@ -241,7 +241,13 @@ function displaySongTable(ids, token){
   tableStr += "</table>";
   songTable.innerHTML = tableStr;
   for(var i = 0; i < ids.length; i++){
-    document.getElementById("albumCover" + (i + 1)).onclick = function(){
+    document.getElementById("albumCover" + (i)).onclick = function(){
+      // document.write("Element id: " + this.id + "<br>");
+      i = Number(this.id[this.id.length - 1]);
+      // document.write(ids + "<br>");
+      // document.write("i: " + i + "<br>");
+      // document.write(ids[i] + "<br>");
+      // document.write(ids[(i + 1) % 2] + "<br>");
       processVote(ids[i], ids[(i + 1) % 2]);
     };
   }
@@ -279,24 +285,40 @@ removing this because it is unnecessary for mobile optimization
 // }
 
 function processVote(winner, loser){
-  /*
-  send data to some database
-  submit an http request?
-  */
-  // var loser;
-  // if(ids[0] == winner){
-  //   loser = ids[1];
-  // } else {
-  //   loser = ids[0];
-  // }
-  updateRatings(winner, loser);
-  // window.alert("Vote successful");
-
+  // updateRatings(winner, loser);
   refreshTable();
 }
 
+var ELO_WEIGHT = 50;
+
+function updateRatings(winner, loser){
+  ratingsJson = getRatingsData(); // might have changed
+  var winRate = getRating(winner);
+  var loseRate = getRating(loser);
+
+  var expWpct = 1/(Math.pow(10, (loseRate - winRate)/400) + 1);
+
+  var winNew = winRate + (1 - expWpct) * ELO_WEIGHT;
+  var loseNew = loseRate - (1 - expWpct) * ELO_WEIGHT;
+
+  document.write(winner + "<br>");
+  document.write(loser + "<br>");
+  document.write(ratingsJson.find(id => winner).rating + "<br>");
+  document.write(ratingsJson.find(id => loser).rating + "<br>");
+  updateRating(winner, winNew);
+  document.write(ratingsJson.find(id => winner).rating + "<br>");
+  document.write(ratingsJson.find(id => loser).rating + "<br>");
+  updateRating(loser, loseNew);
+  document.write(ratingsJson.find(id => winner).rating + "<br>");
+  document.write(ratingsJson.find(id => loser).rating + "<br>");
+
+  // write using RATINGS_URL
+
+
+}
+
 function refreshTable(){
-  var ids = selectRandomIds(songList);
+  ids = selectRandomIds(songList);
   displaySongTable(ids, token);
 }
 
@@ -341,7 +363,7 @@ function selectRandomIds(data){
 }
 
 function getIdData(){
-  var url = "https://raw.githubusercontent.com/mattkalin/songmash/a43a8e6b0e3663f2fdffbeefdd6442589ad722e7/song%20ids.csv";
+  var url = "https://raw.githubusercontent.com/mattkalin/songmash/main/song%20ids.csv";
   var data = readCsv(url).split("\r\n");
   if(data[0] == "id"){
     data.shift();
@@ -401,6 +423,24 @@ function parseCsv(data){
 //
 // }
 
+var RATINGS_URL = "https://raw.githubusercontent.com/mattkalin/songmash/main/ratings.json";
+// var RATINGS_URL = "./ratings.json";
+
 function getRatingsData(){
-  
+  var url = RATINGS_URL;
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.open("GET", url, false);
+  xmlHttp.send( null );
+  return JSON.parse(xmlHttp.responseText);
+}
+
+function updateRating(songId, newRating){
+  // document.write(ratingsJson.find(id => songId).rating + "<br>");
+  ratingsJson.find(id => songId).rating = newRating;
+  // document.write(ratingsJson.find(id => songId).rating + "<br>");
+}
+
+function getRating(songId){
+  // document.write(songId);
+  return ratingsJson.find(id == songId).rating;
 }
