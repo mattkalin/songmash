@@ -11,13 +11,16 @@
   </head>
   <body>
     <h1 style="text-align: center">SongMash</h1>
-    <center>Tap the album image of the song you like better!</center>
+    <center>Tap the image of the song you like better!</center>
     <br>
     <br>
     <div id="songTable"></div>
     <br>
     <center><u onclick="refreshTable();">See a different matchup</u></center>
+    <!-- <script type="module" src="import.js"></script> -->
+    <!-- <script src="browserify/bundle.js"></script> -->
     <script src="spotify.js"></script>
+    <!-- <script src="mongo.js"></script> -->
     <script type="text/javascript">
     var token = getSpotifyToken();
     token.created_at = new Date();

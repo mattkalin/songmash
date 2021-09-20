@@ -1,3 +1,5 @@
+// const mongo = require("../mongo");
+
 function getSongInfo(id, token) {
   // this works
 
@@ -150,7 +152,7 @@ function displaySongTable(ids, token){
     tableStr += "<td>";
     tableStr += "<img src='" +
     songsInfo[i].album.images[0].url +
-    "' width='40%' id='albumCover" + (i + 1) + "' >";
+    "' width='50%' id='albumCover" + (i + 1) + "' >";
     tableStr += "</td>";
   }
   tableStr += "</tr>";
@@ -219,7 +221,7 @@ function displaySongTable(ids, token){
       spotify = "No Spotify link available"
     } else {
       spotify = "<a href='" + songsInfo[i].external_urls.spotify +
-      "' target='_blank' rel='noopener noreferrer'>Listen on Spotify here</a>"
+      "' target='_blank' rel='noopener noreferrer'>Listen on Spotify</a>"
     }
     tableStr += spotify;
     tableStr += "</td>";
@@ -239,10 +241,12 @@ function displaySongTable(ids, token){
   tableStr += "</table>";
   songTable.innerHTML = tableStr;
   for(var i = 0; i < ids.length; i++){
-    document.getElementById("albumCover" + (i + 1)).onclick = processVote;
+    document.getElementById("albumCover" + (i + 1)).onclick = function(){
+      processVote(ids[i], ids[(i + 1) % 2]);
+    };
   }
-  document.addEventListener('play', pauseOtherAudio, true); 
-
+  document.addEventListener('play', pauseOtherAudio, true);
+  // document.addEventListener('keydown', onKeyDown, false);
 }
 
 function pauseOtherAudio(e){
@@ -254,11 +258,38 @@ function pauseOtherAudio(e){
     }
 }
 
-function processVote(winner, ids){
+/*
+removing this because it is unnecessary for mobile optimization
+*/
+
+// function onKeyDown(e){
+//   switch (event.keyCode){
+//     case 32: // space bar
+//       pauseAllAudio(e);
+//     break;
+//   }
+//   return false;
+// }
+//
+// function pauseAllAudio(e){
+//   var audios = document.getElementsByTagName('audio');
+//     for(var i = 0, len = audios.length; i < len;i++){
+//           audios[i].pause();
+//     }
+// }
+
+function processVote(winner, loser){
   /*
   send data to some database
   submit an http request?
   */
+  // var loser;
+  // if(ids[0] == winner){
+  //   loser = ids[1];
+  // } else {
+  //   loser = ids[0];
+  // }
+  updateRatings(winner, loser);
   // window.alert("Vote successful");
 
   refreshTable();
@@ -369,3 +400,7 @@ function parseCsv(data){
 //   xmlHttp.send( body );
 //
 // }
+
+function getRatingsData(){
+  
+}
