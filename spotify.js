@@ -286,9 +286,30 @@ removing this because it is unnecessary for mobile optimization
 
 function processVote(winner, loser){
   // updateRatings(winner, loser);
-  window.alert("Test");
-  document.write("Test");
-  // refreshTable();
+  // window.alert("Test");
+  // document.write("Test");
+
+  const data = {
+    winner: winner,
+    loser: loser,
+    time: Date.now()
+  };
+  // console.log("Sending POST request with data " + JSON.stringify(data));
+  fetch("/match", {
+    // the "/..." doesn't really matter, just has to match the one in server.js
+    method: "post",
+    body: JSON.stringify(data),
+    // body: data,
+    headers: new Headers({
+        "Content-Type": "application/json",
+        // "Content-Type": "X-www-form-urlencoded",
+    }),
+  })
+    // .then((res) => res.json())
+    // .catch((err) => console.log(err))
+    ;
+
+  refreshTable();
 }
 
 

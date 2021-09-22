@@ -19,14 +19,17 @@
     <center><u onclick="refreshTable();">See a different matchup</u></center>
     <!-- <script type="module" src="import.js"></script> -->
     <!-- <script src="browserify/bundle.js"></script> -->
-    <script src="spotify.js"></script>
+    <script src="/spotify.js"></script>
+    <!-- <script src="file://Users/malexk999/Desktop/Cloud desktop/Miscellaneous/Other/Song Mash/songmash/spotify.js"></script> -->
+
+    <!-- <script src="poll.js"></script> -->
     <!-- <script src="mongo.js"></script> -->
     <script type="text/javascript">
     var token = getSpotifyToken();
     token.created_at = new Date();
     // refresh token? timestamp and check if it's been an hour?
     var songList = getIdData();
-    var ratingsJson = getRatingsData(); 
+    var ratingsJson = getRatingsData();
     var ids = selectRandomIds(songList);
     // ["5Z01UMMf7V1o0MzF86s6WJ", //"2gZUPNdnz5Y45eiGxpHGSc",
     // "57bgtoPSgt236HzfBOd8kj"];
