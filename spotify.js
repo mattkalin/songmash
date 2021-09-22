@@ -284,63 +284,36 @@ removing this because it is unnecessary for mobile optimization
 //     }
 // }
 
-function processVote(winner, loser){
-  // updateRatings(winner, loser);
-  // window.alert("Test");
-  // document.write("Test");
-
-  const data = {
-    winner: winner,
-    loser: loser,
-    time: Date.now()
-  };
-  // console.log("Sending POST request with data " + JSON.stringify(data));
-  fetch("/match", {
-    // the "/..." doesn't really matter, just has to match the one in server.js
-    method: "post",
-    body: JSON.stringify(data),
-    // body: data,
-    headers: new Headers({
-        "Content-Type": "application/json",
-        // "Content-Type": "X-www-form-urlencoded",
-    }),
-  })
-    // .then((res) => res.json())
-    // .catch((err) => console.log(err))
-    ;
-
-  refreshTable();
-}
 
 
 
-var ELO_WEIGHT = 50;
-
-function updateRatings(winner, loser){
-  ratingsJson = getRatingsData(); // might have changed
-  var winRate = getRating(winner);
-  var loseRate = getRating(loser);
-
-  var expWpct = 1/(Math.pow(10, (loseRate - winRate)/400) + 1);
-
-  var winNew = winRate + (1 - expWpct) * ELO_WEIGHT;
-  var loseNew = loseRate - (1 - expWpct) * ELO_WEIGHT;
-
-  document.write(winner + "<br>");
-  document.write(loser + "<br>");
-  document.write(ratingsJson.find(id => winner).rating + "<br>");
-  document.write(ratingsJson.find(id => loser).rating + "<br>");
-  updateRating(winner, winNew);
-  document.write(ratingsJson.find(id => winner).rating + "<br>");
-  document.write(ratingsJson.find(id => loser).rating + "<br>");
-  updateRating(loser, loseNew);
-  document.write(ratingsJson.find(id => winner).rating + "<br>");
-  document.write(ratingsJson.find(id => loser).rating + "<br>");
-
-  // write using RATINGS_URL
-
-
-}
+// var ELO_WEIGHT = 50;
+//
+// function updateRatings(winner, loser){
+//   ratingsJson = getRatingsData(); // might have changed
+//   var winRate = getRating(winner);
+//   var loseRate = getRating(loser);
+//
+//   var expWpct = 1/(Math.pow(10, (loseRate - winRate)/400) + 1);
+//
+//   var winNew = winRate + (1 - expWpct) * ELO_WEIGHT;
+//   var loseNew = loseRate - (1 - expWpct) * ELO_WEIGHT;
+//
+//   document.write(winner + "<br>");
+//   document.write(loser + "<br>");
+//   document.write(ratingsJson.find(id => winner).rating + "<br>");
+//   document.write(ratingsJson.find(id => loser).rating + "<br>");
+//   updateRating(winner, winNew);
+//   document.write(ratingsJson.find(id => winner).rating + "<br>");
+//   document.write(ratingsJson.find(id => loser).rating + "<br>");
+//   updateRating(loser, loseNew);
+//   document.write(ratingsJson.find(id => winner).rating + "<br>");
+//   document.write(ratingsJson.find(id => loser).rating + "<br>");
+//
+//   // write using RATINGS_URL
+//
+//
+// }
 
 function refreshTable(){
   ids = selectRandomIds(songList);
@@ -416,9 +389,9 @@ function readCsv(url){
 }
 
 
-function parseCsv(data){
-  window.alert("CSV read successfully")
-}
+// function parseCsv(data){
+//   window.alert("CSV read successfully")
+// }
 
 // function readGoogleSheet(){
 //   // var spreadsheetId = "1YOWX_9lH2Jw4JlwW4PmQLEYbXcQq6fj-SVvuCzp_gzY";
@@ -448,24 +421,24 @@ function parseCsv(data){
 //
 // }
 
-var RATINGS_URL = "https://raw.githubusercontent.com/mattkalin/songmash/main/ratings.json";
-// var RATINGS_URL = "./ratings.json";
-
-function getRatingsData(){
-  var url = RATINGS_URL;
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open("GET", url, false);
-  xmlHttp.send( null );
-  return JSON.parse(xmlHttp.responseText);
-}
-
-function updateRating(songId, newRating){
-  // document.write(ratingsJson.find(id => songId).rating + "<br>");
-  ratingsJson.find(id => songId).rating = newRating;
-  // document.write(ratingsJson.find(id => songId).rating + "<br>");
-}
-
-function getRating(songId){
-  // document.write(songId);
-  return ratingsJson.find(id == songId).rating;
-}
+// var RATINGS_URL = "https://raw.githubusercontent.com/mattkalin/songmash/main/ratings.json";
+// // var RATINGS_URL = "./ratings.json";
+//
+// function getRatingsData(){
+//   var url = RATINGS_URL;
+//   var xmlHttp = new XMLHttpRequest();
+//   xmlHttp.open("GET", url, false);
+//   xmlHttp.send( null );
+//   return JSON.parse(xmlHttp.responseText);
+// }
+//
+// function updateRating(songId, newRating){
+//   // document.write(ratingsJson.find(id => songId).rating + "<br>");
+//   ratingsJson.find(id => songId).rating = newRating;
+//   // document.write(ratingsJson.find(id => songId).rating + "<br>");
+// }
+//
+// function getRating(songId){
+//   // document.write(songId);
+//   return ratingsJson.find(id == songId).rating;
+// }
