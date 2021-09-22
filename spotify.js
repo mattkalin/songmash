@@ -286,8 +286,12 @@ removing this because it is unnecessary for mobile optimization
 
 function processVote(winner, loser){
   // updateRatings(winner, loser);
-  refreshTable();
+  window.alert("Test");
+  document.write("Test");
+  // refreshTable();
 }
+
+
 
 var ELO_WEIGHT = 50;
 
