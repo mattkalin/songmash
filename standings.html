@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Song Mash</title>
+    <style>
+    td {
+      text-align: center;
+    }
+    </style>
+  </head>
+  <body>
+    <h2 style="text-align: center">SongMash Standings</h2>
+    <br>
+    <a href="/songmash" style="text-align: center">Return to SongMash</a>
+    <br>
+    <div id="standingsTable"></div>
+    <br>
+    <script src="/spotify.js"></script>
+    <script src="/standings.js"></script>
+    <script type="text/javascript">
+    var token = getSpotifyToken();
+    var ratings = getRatings();
+    displayRatings();
+
+    </script>
+  </body>
+</html>

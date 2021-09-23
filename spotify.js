@@ -34,7 +34,9 @@ function getSpotifyToken(){
   // document.writeln("Got token")
   xmlHttp.send( body );
   // document.write(xmlHttp.responseText + "<br>")
-  return JSON.parse(xmlHttp.responseText);
+  var token = JSON.parse(xmlHttp.responseText);
+  token.created_at = new Date();
+  return token; 
 
 
   // var request = require('request'); // "Request" library

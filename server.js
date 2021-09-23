@@ -45,9 +45,40 @@ const Ratings = mongoose.model("Ratings", ratingsSchema, 'ratings');
 
 app.use(express.static(__dirname)); // access other files in this directory
 
-app.get("/", function(req, res){
+const MATCHUP_PAGE = "/songmash";
+
+app.get(MATCHUP_PAGE, function(req, res){
   // console.log("Directory: " + __dirname);
   res.sendFile(__dirname + "/songmash.html");
+})
+
+app.get("/", function(req, res){
+  res.redirect(MATCHUP_PAGE);
+})
+
+const STANDINGS_PAGE = "/standings";
+const RATINGS_DATA_URL = "/ratings";
+
+app.get(STANDINGS_PAGE, function(req, res){
+  // var xmlHttp = new XMLHttpRequest();
+  // xmlHttp.open( "POST", RATINGS_DATA_URL, false ); // false for synchronous request
+  // xmlHttp.setRequestHeader("Content-Type", "application/json");
+  // xmlHttp.send( JSON.stringify(ratings) );
+
+  // fetch(RATINGS_DATA_URL, {
+  //   method: "post",
+  //   body: JSON.stringify(ratings),
+  //   headers: new Headers({
+  //       "Content-Type": "application/json",
+  //     }),
+  // });
+
+  res.sendFile(__dirname + "/standings.html");
+})
+
+app.get(RATINGS_DATA_URL, async function(req, res){
+  let ratings = await Ratings.find().exec();
+  res.json(ratings);
 })
 
 // app.get("/songmash.html", function(req, res)){
