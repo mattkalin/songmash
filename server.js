@@ -15,6 +15,7 @@ mongoose.connect(uri);
 const matchSchema = {
   winner: String,
   loser: String,
+  abstain: Boolean,
   sentTime: Date,
   received: Date
 }
@@ -22,9 +23,22 @@ const matchSchema = {
 const Match = mongoose.model("Match", matchSchema, 'matches2');
 
 const ratingsSchema = {
-  ratings: Array,
-  updated: Date,
+  // ratings: Array,
+  // updated: Date,
   // latest: Boolean
+
+    _id: String, // the song's spotify id
+    rating: Number, // current rating
+    win: Number, // number of wins
+    loss: Number, // number of losses
+    abstain: Number, // number of abstains
+    histRate: Array, // array listing all ratings for this song
+    matches: Array
+    /*
+    array listing all matches
+    includes abstain matches
+    does not include initial rating
+    */
 }
 
 const Ratings = mongoose.model("Ratings", ratingsSchema, 'ratings');
@@ -42,8 +56,22 @@ app.get("/", function(req, res){
 
 app.post("/match", function(req, res){
   console.log("POST request received")
-  receiveMatch(req, res); 
+  receiveMatch2(req, res);
 });
+
+function receiveMatch2(req, res){
+  let newMatch = new Match({
+    winner: req.body.winner,
+    loser: req.body.loser,
+    abstain: req.body.abstain,
+    sentTime: req.body.time,
+    received: Date.now()
+  });
+  newMatch.save();
+  // if(!req.body.abstain){
+    updateRatings2(req.body.winner, req.body.loser, newMatch, req.body.abstain);
+  // }
+}
 
 async function receiveMatch(req, res){
 
@@ -111,11 +139,45 @@ async function updateRatings(winner, loser, newRatings){
   newRatings.ratings = eloMath(winner, loser, ratingsData.ratings);
 }
 
+async function updateRatings2(winner, loser, match, abstain){
+  let oldRatings = await getRatings(winner, loser);
+  if(!abstain){
+    let newRatings = eloMath(oldRatings.winner.rating, oldRatings.loser.rating);
+    await updateRating(oldRatings.winner, match, newRatings.winner);
+    await updateRating(oldRatings.loser, match, newRatings.loser);
+  } else {
+    await updateAbstain(oldRatings.winner, match);
+    await updateAbstain(oldRatings.loser, match);
+  }
+
+}
+
+async function updateAbstain(rating, match){
+  rating.abstain += 1;
+  rating.matches.push(match);
+  await rating.save();
+}
+
+async function updateRating(rating, match, newRate){
+  // 'rating' here is a Rating object
+
+  // let rating = await Ratings.findOne({id: id});
+  rating.rating = newRate;
+  rating.histRate.push(newRate);
+  rating.matches.push(match);
+  if(rating._id === match.winner){
+    rating.win += 1;
+  } else {
+    rating.loss += 1;
+  }
+  await rating.save();
+}
+
 var ELO_WEIGHT = 50;
 
-function eloMath(winner, loser, ratings){
-  var winRate = getRating(winner, ratings);
-  var loseRate = getRating(loser, ratings);
+function eloMath(winRate, loseRate){
+  // var winRate = getRating(winner, ratings);
+  // var loseRate = getRating(loser, ratings);
 
   // console.log("Loser rating: " + loseRate);
 
@@ -124,27 +186,40 @@ function eloMath(winner, loser, ratings){
   var winNew = winRate + (1 - expWpct) * ELO_WEIGHT;
   var loseNew = loseRate - (1 - expWpct) * ELO_WEIGHT;
 
-  setRating(winner, winNew, ratings);
-  setRating(loser, loseNew, ratings);
+  // setRating(winner, winNew, ratings);
+  // setRating(loser, loseNew, ratings);
+  //
+  // // console.log("Loser new rating: " + getRating(loser, ratings));
+  //
+  // return ratings;
+  return {
+    winner: winNew,
+    loser: loseNew
+  };
+}
 
-  // console.log("Loser new rating: " + getRating(loser, ratings));
-
-  return ratings;
+async function getRatings(winner, loser){
+  let winRate = await Ratings.findOne({_id: winner}).exec();
+  let loseRate = await Ratings.findOne({_id: loser}).exec();
+  return {
+    winner: winRate,
+    loser: loseRate
+  };
 }
 
 function getRating(id, ratings){
   // console.log(typeof(ratings));
   // console.log("Type of ratings: " + typeof(ratings));
   // console.log("Filter: " + JSON.stringify(ratings.filter(d => d.id == id)));
-  let obj = (ratings.filter(d => d.id == id)[0]);
-  if(typeof(obj) == 'undefined'){
+  let obj = (ratings.filter(d => d._id === id)[0]);
+  if(typeof(obj) === 'undefined'){
     console.log("Unable to find record for ID " + id);
   }
   return obj.rating;
 }
 
 function setRating(id, rate, ratings){
-  (ratings.filter(d => d.id == id)[0]).rating = rate;
+  (ratings.filter(d => d._id === id)[0]).rating = rate;
 }
 
 app.listen(8000, function() {

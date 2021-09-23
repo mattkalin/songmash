@@ -85,6 +85,9 @@
       }, error = function(e){
         search.results <<- searchTrack(rollingstone.titles[i], my_oauth)
       })
+      if(rollingstone.search[i] == "The Beatles, 'Help!'"){
+        search.results = search.results[-1, ]
+      }
       rollingstone.spotify = rollingstone.spotify %>% 
         rbind(search.results[1, ])
       setTxtProgressBar(pb, i)

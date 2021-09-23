@@ -199,7 +199,7 @@ function displaySongTable(ids, token){
   for(var i = 0; i < ids.length; i++){
     tableStr += "<td>";
     // document.write("Album: ")
-    if(songsInfo[i].preview_url == null){
+    if(songsInfo[i].preview_url === null){
       audio = "No audio preview available"
     } else {
       audio = "<audio controls width='15%' height='100'>" +
@@ -217,7 +217,7 @@ function displaySongTable(ids, token){
   for(var i = 0; i < ids.length; i++){
     tableStr += "<td>";
     // document.write("Album: ")
-    if(songsInfo[i].external_urls.spotify == null){
+    if(songsInfo[i].external_urls.spotify === null){
       spotify = "No Spotify link available"
     } else {
       spotify = "<a href='" + songsInfo[i].external_urls.spotify +
@@ -354,7 +354,7 @@ function selectRandomIds(data){
   // just doing this with two
   var rand1 = data[Math.floor(Math.random() * data.length)];
   rand2 = rand1;
-  while(rand2 == rand1){
+  while(rand2 === rand1){
     rand2 = data[Math.floor(Math.random() * data.length)];
   }
   return [rand1, rand2];
@@ -363,7 +363,7 @@ function selectRandomIds(data){
 function getIdData(){
   var url = "https://raw.githubusercontent.com/mattkalin/songmash/main/song%20ids.csv";
   var data = readCsv(url).split("\r\n");
-  if(data[0] == "id"){
+  if(data[0] === "id"){
     data.shift();
   }
   return data;
