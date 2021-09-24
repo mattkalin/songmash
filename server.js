@@ -20,7 +20,7 @@ const matchSchema = {
   received: Date
 }
 
-const Match = mongoose.model("Match", matchSchema, 'matches2');
+const Match = mongoose.model("Match", matchSchema, 'matches');
 
 const ratingsSchema = {
   // ratings: Array,
@@ -76,9 +76,10 @@ app.get(STANDINGS_PAGE, function(req, res){
   res.sendFile(__dirname + "/standings.html");
 })
 
-app.get(RATINGS_DATA_URL, async function(req, res){
-  let ratings = await Ratings.find().exec();
-  res.json(ratings);
+app.get(RATINGS_DATA_URL, function(req, res){
+  // let ratings = await Ratings.find().exec();
+  // res.json(ratings);
+  Ratings.find().then((ratings) => res.json(ratings));
 })
 
 // app.get("/songmash.html", function(req, res)){
@@ -87,121 +88,145 @@ app.get(RATINGS_DATA_URL, async function(req, res){
 
 app.post("/match", function(req, res){
   console.log("POST request received")
-  receiveMatch2(req, res);
+  try {
+    // console.log(req.sjdkls.djksl); // force an error to ensure catch works
+    receiveMatch(req.body);
+    res.status(200).send("Match Received");
+  } catch (error){
+    res.status(500).send(error);
+  }
+
 });
 
-function receiveMatch2(req, res){
+function receiveMatch(json){
+  // json is the request body
   let newMatch = new Match({
-    winner: req.body.winner,
-    loser: req.body.loser,
-    abstain: req.body.abstain,
-    sentTime: req.body.time,
+    winner: json.winner,
+    loser: json.loser,
+    abstain: json.abstain,
+    sentTime: json.time,
     received: Date.now()
   });
-  newMatch.save();
+  newMatch.save();//.then((match) => {
+    updateRatings(newMatch); // Promise
+  // }).catch((err) => console.log("Error when saving new match: " + err));
   // if(!req.body.abstain){
-    updateRatings2(req.body.winner, req.body.loser, newMatch, req.body.abstain);
+
   // }
 }
 
-async function receiveMatch(req, res){
+// async function receiveMatch(req, res){
+//
+//     // the "/..." doesn't really matter, just has to match the one in spotify.js
+//     // console.log("POST request received successfully with data: " + JSON.stringify(req.body));
+//     /*
+//     POST header:
+//     {"host":"localhost:8000","content-type":"application/json",
+//     "origin":"http://localhost:8000","accept-encoding":"gzip, deflate",
+//     "cookie":"_ga=GA1.1.1953034411.1632319817; _gid=GA1.1.1217338670.1632319817",
+//     "connection":"keep-alive","accept":"star/star","user-agent":"Mozilla/5.0
+//     (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)
+//     Version/14.0 Safari/605.1.15","referer":"http://localhost:8000/",
+//     "content-length":"89","accept-language":"en-us"}
+//     "content-type":"X-www-form-urlencoded"
+//     */
+//     // const data = JSON.parse(req.body);
+//     let newMatch = new Match({
+//       winner: req.body.winner,
+//       loser: req.body.loser,
+//       abstain: req.body.abstain,
+//       sentTime: req.body.time,
+//       received: Date.now()
+//     });
+//     newMatch.save();
+//     // UNCOMMENT THE PREVIOUS LINE TO SEND DATA TO MONGODB
+//     // res.redirect("/");
+//
+//     if(!req.body.abstain){
+//       // this runs if the match was not an abstention
+//       let newRatings = new Ratings ({
+//         ratings: [],
+//         updated: Date.now()
+//       });
+//       console.log("Ratings update initiated");
+//       await updateRatings(req.body.winner, req.body.loser, newRatings); // async
+//       // console.log("Ratings length: " + newRatings.ratings.length);
+//       console.log("Ratings update in progress");
+//       if(newRatings.ratings.length >= 0){
+//         newRatings.save();
+//       }
+//       console.log("Ratings updated successfully");
+//     }
+//
+// }
 
-    // the "/..." doesn't really matter, just has to match the one in spotify.js
-    // console.log("POST request received successfully with data: " + JSON.stringify(req.body));
-    /*
-    POST header:
-    {"host":"localhost:8000","content-type":"application/json",
-    "origin":"http://localhost:8000","accept-encoding":"gzip, deflate",
-    "cookie":"_ga=GA1.1.1953034411.1632319817; _gid=GA1.1.1217338670.1632319817",
-    "connection":"keep-alive","accept":"star/star","user-agent":"Mozilla/5.0
-    (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)
-    Version/14.0 Safari/605.1.15","referer":"http://localhost:8000/",
-    "content-length":"89","accept-language":"en-us"}
-    "content-type":"X-www-form-urlencoded"
-    */
-    // const data = JSON.parse(req.body);
-    let newMatch = new Match({
-      winner: req.body.winner,
-      loser: req.body.loser,
-      abstain: req.body.abstain,
-      sentTime: req.body.time,
-      received: Date.now()
-    });
-    newMatch.save();
-    // UNCOMMENT THE PREVIOUS LINE TO SEND DATA TO MONGODB
-    // res.redirect("/");
+// async function updateRatings(winner, loser, newRatings){
+//   let ratingsData = (await Ratings.find({'ratings.0':{'$exists': true}}
+//     ).sort({_id: -1}).limit(1))[0]; // get old ratings from mongodb
+//   // let str = JSON.stringify(ratingsData);
+//   // console.log(str);
+//   // ratingsData = JSON.parse(str);
+//   // console.log("Ratings data: " + ratingsData);
+//   // console.log("Old ratings[0]: " + oldRatings[0]);
+//   // console.log("Old ratings updated: " + ratingsData.updated);
+//   // console.log("Type of ratings: " + typeof(ratingsData.ratings));
+//   // console.log("Old ratings id: " + ratingsData._id);
+//   // console.log("Old ratings type: " + typeof(oldRatings));
+//   // ratingsData.ratings = eloMath(winner, loser, ratingsData.ratings);
+//   // console.log(ratingsData.ratings);
+//   // console.log(JSON.stringify(ratingsData.ratings.filter(d => d.rating != 0)));
+//   // ratingsData.updated = Date.now();
+//   // return ratingsData;
+//   // console.log("Ratings length: " + ratingsData.ratings.length);
+//   newRatings.ratings = eloMath(winner, loser, ratingsData.ratings);
+// }
 
-    if(!req.body.abstain){
-      // this runs if the match was not an abstention
-      let newRatings = new Ratings ({
-        ratings: [],
-        updated: Date.now()
-      });
-      console.log("Ratings update initiated");
-      await updateRatings(req.body.winner, req.body.loser, newRatings); // async
-      // console.log("Ratings length: " + newRatings.ratings.length);
-      console.log("Ratings update in progress");
-      if(newRatings.ratings.length >= 0){
-        newRatings.save();
-      }
-      console.log("Ratings updated successfully");
+function updateRatings(match){
+  let winner = match.winner;
+  let loser = match.loser;
+  let abstain = match.abstain;
+  getRatings(winner, loser).then((oldRatings) => {
+    // console.log("Old ratings: " + JSON.stringify(oldRatings));
+    if(!abstain){
+      let newRatings = eloMath(oldRatings.winner.rating, oldRatings.loser.rating);
+      updateRating(oldRatings.winner, match, newRatings.winner);
+      updateRating(oldRatings.loser, match, newRatings.loser);
+    } else {
+      updateAbstain(oldRatings.winner, match);
+      updateAbstain(oldRatings.loser, match);
     }
-
+  }); // promise
 }
 
-async function updateRatings(winner, loser, newRatings){
-  let ratingsData = (await Ratings.find({'ratings.0':{'$exists': true}}
-    ).sort({_id: -1}).limit(1))[0]; // get old ratings from mongodb
-  // let str = JSON.stringify(ratingsData);
-  // console.log(str);
-  // ratingsData = JSON.parse(str);
-  // console.log("Ratings data: " + ratingsData);
-  // console.log("Old ratings[0]: " + oldRatings[0]);
-  // console.log("Old ratings updated: " + ratingsData.updated);
-  // console.log("Type of ratings: " + typeof(ratingsData.ratings));
-  // console.log("Old ratings id: " + ratingsData._id);
-  // console.log("Old ratings type: " + typeof(oldRatings));
-  // ratingsData.ratings = eloMath(winner, loser, ratingsData.ratings);
-  // console.log(ratingsData.ratings);
-  // console.log(JSON.stringify(ratingsData.ratings.filter(d => d.rating != 0)));
-  // ratingsData.updated = Date.now();
-  // return ratingsData;
-  // console.log("Ratings length: " + ratingsData.ratings.length);
-  newRatings.ratings = eloMath(winner, loser, ratingsData.ratings);
-}
-
-async function updateRatings2(winner, loser, match, abstain){
-  let oldRatings = await getRatings(winner, loser);
-  if(!abstain){
-    let newRatings = eloMath(oldRatings.winner.rating, oldRatings.loser.rating);
-    await updateRating(oldRatings.winner, match, newRatings.winner);
-    await updateRating(oldRatings.loser, match, newRatings.loser);
-  } else {
-    await updateAbstain(oldRatings.winner, match);
-    await updateAbstain(oldRatings.loser, match);
-  }
-
-}
-
-async function updateAbstain(rating, match){
+function updateAbstain(rating, match){
   rating.abstain += 1;
   rating.matches.push(match);
-  await rating.save();
+  return rating.save().catch((err) => {
+    console.log("Error when saving abstain rating " + err);
+  }); // Promise
 }
 
-async function updateRating(rating, match, newRate){
+function updateRating(rating, match, newRate){
   // 'rating' here is a Rating object
 
   // let rating = await Ratings.findOne({id: id});
   rating.rating = newRate;
-  rating.histRate.push(newRate);
+  try {
+    rating.histRate.push(newRate);
+  } catch (error) {
+    console.log(error);
+    console.log("Rating object: " + JSON.stringify(rating));
+  }
+
   rating.matches.push(match);
   if(rating._id === match.winner){
     rating.win += 1;
   } else {
     rating.loss += 1;
   }
-  await rating.save();
+  return rating.save().catch((err) => {
+    console.log("Error when saving rating " + err);
+  }); // Promise
 }
 
 var ELO_WEIGHT = 50;
@@ -230,7 +255,7 @@ function eloMath(winRate, loseRate){
 }
 
 async function getRatings(winner, loser){
-  let winRate = await Ratings.findOne({_id: winner}).exec();
+  let winRate = await Ratings.findOne({_id: winner}).exec(); // Promise?
   let loseRate = await Ratings.findOne({_id: loser}).exec();
   return {
     winner: winRate,
@@ -238,20 +263,20 @@ async function getRatings(winner, loser){
   };
 }
 
-function getRating(id, ratings){
-  // console.log(typeof(ratings));
-  // console.log("Type of ratings: " + typeof(ratings));
-  // console.log("Filter: " + JSON.stringify(ratings.filter(d => d.id == id)));
-  let obj = (ratings.filter(d => d._id === id)[0]);
-  if(typeof(obj) === 'undefined'){
-    console.log("Unable to find record for ID " + id);
-  }
-  return obj.rating;
-}
-
-function setRating(id, rate, ratings){
-  (ratings.filter(d => d._id === id)[0]).rating = rate;
-}
+// function getRating(id, ratings){
+//   // console.log(typeof(ratings));
+//   // console.log("Type of ratings: " + typeof(ratings));
+//   // console.log("Filter: " + JSON.stringify(ratings.filter(d => d.id == id)));
+//   let obj = (ratings.filter(d => d._id === id)[0]);
+//   if(typeof(obj) === 'undefined'){
+//     console.log("Unable to find record for ID " + id);
+//   }
+//   return obj.rating;
+// }
+//
+// function setRating(id, rate, ratings){
+//   (ratings.filter(d => d._id === id)[0]).rating = rate;
+// }
 
 app.listen(8000, function() {
   console.log("server is running on port 8000");

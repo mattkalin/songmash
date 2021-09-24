@@ -24,16 +24,25 @@ function abstain(){
 }
 
 function sendDataAndRefresh(data){
+  // console.log("Sending post request");
   fetch("/match", {
     // the "/..." doesn't really matter, just has to match the one in server.js
     method: "post",
     body: JSON.stringify(data),
-    // body: data,
     headers: new Headers({
         "Content-Type": "application/json",
         // "Content-Type": "X-www-form-urlencoded",
     }),
-  });
+  })
+  // .then((res) => console.log(res))
+  // .catch((err) => console.log("error with POST request"))
+  ;
+
+  // var xmlHttp = new XMLHttpRequest();
+  // xmlHttp.open( "POST", "/match", false ); // false for synchronous request
+  // xmlHttp.setRequestHeader("Content-Type", "application/json");
+  // xmlHttp.send( JSON.stringify(data) );
+  // console.log(xmlHttp.responseText);
 
 
   refreshTable();
