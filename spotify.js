@@ -9,6 +9,8 @@ function getSongInfo(id, token) {
   xmlHttp.setRequestHeader("Authorization", "Bearer " + token.access_token);
   xmlHttp.send( null );
   return JSON.parse(xmlHttp.responseText);
+
+
 }
 
 function getSpotifyToken(){
@@ -36,7 +38,7 @@ function getSpotifyToken(){
   // document.write(xmlHttp.responseText + "<br>")
   var token = JSON.parse(xmlHttp.responseText);
   token.created_at = new Date();
-  return token; 
+  return token;
 
 
   // var request = require('request'); // "Request" library
@@ -134,6 +136,7 @@ function displaySongTable(ids, token){
   var songsInfo = [];
   for(var i = 0; i < ids.length; i++){
     songsInfo[i] = getSongInfo(ids[i], token);
+    // songsInfo[i] = ratings[i]; 
   }
   songTable = document.getElementById("songTable");
   tableStr = "";

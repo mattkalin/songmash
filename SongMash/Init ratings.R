@@ -1,8 +1,15 @@
 library(dplyr)
 library(jsonlite)
 library(stringr)
+library(spotifyr)
 {
   library(Rspotify)
+  user.id = "ifne936g9eq00q87nbcwtmpwb"
+  id <- "fe9d9cae7f8f434491d45b03408b1ffa"
+  secret <- "c0d13fc984a54bc188e5d62ca066a6cb"
+  Sys.setenv(SPOTIFY_CLIENT_ID = id)
+  Sys.setenv(SPOTIFY_CLIENT_SECRET = secret)
+  authorization = get_spotify_authorization_code(scope = scopes[-c(11)])
   my_oauth <- spotifyOAuth(app_id="http://localhost:1410/", 
                            client_id="fe9d9cae7f8f434491d45b03408b1ffa", 
                            client_secret="c0d13fc984a54bc188e5d62ca066a6cb")
@@ -14,7 +21,7 @@ ratings.df = read.csv("../song ids.csv") %>%
 zero.cols = c()
 zero.cols = c("rating", "win", "loss", "abstain")
 ratings.df[, zero.cols] = 0
-ratings.df[, c('title', 'artist', 'album')] = NA
+ratings.df[, c('title', 'artist', 'album', 'preview_url')] = NA
 # ratings.list = list()
 pb = txtProgressBar(max = nrow(ratings.df), style = 3)
 for (i in 1:nrow(ratings.df)) {
@@ -22,10 +29,12 @@ for (i in 1:nrow(ratings.df)) {
   # ratings.list[[i]][["histRate"]] = ratings.df[i, "rating"]
   # ratings.list[[i]][["matches"]] = 'null'
   song.info = get_track(ratings.df[i, "_id"])
+  preview.url = song.info$preview_url
   ratings.df[i, ] = ratings.df[i, ] %>% 
     mutate(title = song.info$name, 
            artist = paste(song.info$artists$name, collapse = ", "), 
-           album = song.info$album$name) %>% 
+           album = song.info$album$name, 
+           preview_url = ifelse(is.null(preview.url), "", preview.url)) %>% 
     as.list()
   setTxtProgressBar(pb, i)
 }

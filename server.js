@@ -6,10 +6,12 @@ const bodyParser = require("body-parser");
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({extended: true}));
 
-const uri = "mongodb+srv://mattkalin:B%40s3-ball@songmash.xy9qe.mongodb.net/SongMash?retryWrites=true&w=majority";
-// you need %40 instead of @
+const uri = "mongodb+srv://mattkalin:M4rkZuck3rb3rg@songmash.uysh3.mongodb.net/SongMash?retryWrites=true&w=majority";
 
 mongoose.connect(uri);
+
+const REQUIRE_PREVIEW = true;
+// true if a song must have a preview_url to be in the database
 
 // create data schema
 const matchSchema = {
@@ -33,7 +35,12 @@ const ratingsSchema = {
     loss: Number, // number of losses
     abstain: Number, // number of abstains
     histRate: Array, // array listing all ratings for this song
-    matches: Array
+    matches: Array,
+    title: String,
+    artist: String,
+    album: String,
+    preview_url: String,
+
     /*
     array listing all matches
     includes abstain matches
@@ -79,7 +86,15 @@ app.get(STANDINGS_PAGE, function(req, res){
 app.get(RATINGS_DATA_URL, function(req, res){
   // let ratings = await Ratings.find().exec();
   // res.json(ratings);
-  Ratings.find().then((ratings) => res.json(ratings));
+  if(REQUIRE_PREVIEW){
+    Ratings.find({
+      "preview_url": {"$exists": true},
+      "$expr": {"$gt" : [{"$strLenCP": "$preview_url"}, 1]}
+    }).then((ratings) => res.json(ratings));
+  } else {
+    Ratings.find().then((ratings) => res.json(ratings));
+  }
+
 })
 
 // app.get("/songmash.html", function(req, res)){

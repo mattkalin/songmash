@@ -199,9 +199,147 @@
   
 } # rolling stone
 {
-  hodgepodge.ids = NULL
+  GetAllPlaylistSongs = function(playlist.id, user.id = "ifne936g9eq00q87nbcwtmpwb", 
+                                 token = my_oauth, print.name = TRUE, 
+                                 debug.mode = FALSE, maxScrapeLimit = 100, 
+                                 my.playlists = NULL){
+    if(maxScrapeLimit > 100){
+      maxScrapeLimit = 100
+    }
+    scrapeLimit = maxScrapeLimit
+    if(is.null(my.playlists) || !(playlist.id) %in% my.playlists$id){
+      playlists = getPlaylists(user.id, token = my_oauth)
+      my.playlists <<- playlists
+    } else {
+      playlists = my.playlists
+    }
+    playlist.length = playlists[match(playlist.id, playlists$id), "tracks"]
+    if(playlist.length < 1){
+      return(NULL)
+    }
+    songs.df = data.frame()
+    playlist.offset = 0
+    if(print.name){
+      if(!(playlist.id %in% playlists$id)){
+        print("Playlist name not found")
+      } else {
+        playlist.name = playlists %>% filter(id == as.character(playlist.id)) %>% 
+          select(name)
+        print(paste0("Loading songs from ", playlist.name, "..."))
+      }
+    } else {
+      print("Loading playlist songs...")
+    }
+    if(!debug.mode){
+      pb = txtProgressBar(0, playlist.length, style = 3)
+    }
+    while (playlist.offset < playlist.length) {
+      section.clear = FALSE
+      error.caught = FALSE
+      all.local.files = FALSE
+      # if(scrapeLimit < maxScrapeLimit){
+      scrapeLimit = maxScrapeLimit
+      # }
+      while (!section.clear) {
+        tryCatch({
+          if(debug.mode){
+            print(paste0("Attempting offset: ", playlist.offset, 
+                         ", scrape limit ", scrapeLimit))
+          }
+          playlist.songs = getPlaylistSongs(user.id, playlist.id, 
+                                            playlist.offset, token, 
+                                            scrape.limit = scrapeLimit)
+          if(debug.mode){
+            print(paste0("Offset: ", playlist.offset, 
+                         ", first song: ", playlist.songs[1, "tracks"]))
+          }
+          section.clear = TRUE
+        }, error = function(e){
+          if(debug.mode){
+            # print(e)
+            # it's gonna be the undefined cols thing 
+          }
+          if(maxScrapeLimit > 20){
+            maxScrapeLimit <<- 20
+            # if one local file encountered, there might be more 
+          }
+          if(playlist.offset > playlist.length){
+            section.clear <<- TRUE
+            all.local.files <<- TRUE
+          } else if(scrapeLimit > maxScrapeLimit){
+            scrapeLimit <<- maxScrapeLimit
+            # not sure how this would happen tbh 
+          } else if(scrapeLimit > 1){
+            # scrapeLimit <<- scrapeLimit - 1
+            scrapeLimit <<- floor(scrapeLimit / 2) 
+            # } else if(playlist.offset > 0 & scrapeLimit == 20){
+            #   playlist.offset <<- playlist.offset - 1
+          } else {
+            # scrapelimit == 1, so the first song is a local file. Skip it. 
+            playlist.offset <<- playlist.offset + 1
+            scrapeLimit <<- maxScrapeLimit
+          }
+          error.caught <<- TRUE
+        })
+      }
+      if(all.local.files){
+        break()
+      }
+      songs.df = rbind(songs.df, playlist.songs)
+      playlist.offset = playlist.offset + scrapeLimit # + error.caught
+      # if(error.caught){
+      #   section.clear = FALSE
+      #   while(!section.clear){
+      #     tryCatch({
+      #       playlist.songs = getPlaylistSongs(user.id, playlist.id, 
+      #                                         playlist.offset, token)
+      #       section.clear = TRUE
+      #     }, error = function(e){
+      #       playlist.offset <<- playlist.offset + 1
+      #     })
+      #   }
+      # }
+      if(!debug.mode){
+        setTxtProgressBar(pb, nrow(songs.df))
+      }
+    }
+    if(!debug.mode){
+      setTxtProgressBar(pb, playlist.length)
+      close(pb)
+    }
+    return(songs.df)
+  }
+  getPlaylistSongs = function (user_id, playlist_id, offset = 0, token, 
+                               scrape.limit = scrapeLimit){
+    req <- httr::GET(paste0("https://api.spotify.com/v1/users/", 
+                            user_id, "/playlists/", playlist_id, "/tracks?&limit=", scrape.limit, "&offset=", 
+                            offset), httr::config(token = token))
+    json1 <- httr::content(req)
+    json2 <- jsonlite::fromJSON(jsonlite::toJSON(json1))$items
+    tracks <- unlist(json2$track$name)
+    popularity <- unlist(json2$track$popularity)
+    id <- unlist(json2$track$id)
+    artist <- unlist(lapply(seq(1:length(tracks)), function(x) {
+      return(data.frame(json2$track$artists[x])$name[1])
+    }))
+    artist_full <- sapply(lapply(seq(1:length(tracks)), function(x) {
+      return(data.frame(json2$track$artists[[x]])$name)
+    }), paste, collapse = "; ")
+    artist_id <- unlist(lapply(seq(1:length(tracks)), function(x) {
+      return(data.frame(json2$track$artists[x])$id[1])
+    }))
+    album <- unlist(json2$track$album$name)
+    album_id <- unlist(json2$track$album$id)
+    added.at = as.POSIXct(unlist(json2$added_at))
+    playlistSongs <- data.frame(tracks, id, popularity, artist, artist_full, 
+                                artist_id, album, album_id, added.at, stringsAsFactors = F)
+    return(playlistSongs)
+  }
+  
+  
+  hodgepodge.ids = GetAllPlaylistSongs("3imgj3r6m9leM0B9Q644Zv")
 } # read in popular hodgepodge
-id.data = data.frame("id" = c(rollingstone.ids, hodgepodge.ids))
+id.data = data.frame("id" = c(rollingstone.ids, hodgepodge.ids$id))
 # write.csv(id.data, "../song ids.csv", row.names = FALSE)
 xlsx::write.xlsx(id.data, "../song ids.xlsx", row.names = FALSE)
-
+print("Need to manually save the xlsx file as a csv")
