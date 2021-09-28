@@ -15,11 +15,14 @@ library(spotifyr)
                            client_secret="c0d13fc984a54bc188e5d62ca066a6cb")
   
 } # spotify token 
-ratings.df = read.csv("../song ids.csv") %>% 
+ratings.df = 
+  # read.csv("../song ids.csv") %>%
+  readxl::read_excel("../song ids.xlsx") %>%
+  as.data.frame() %>% 
   # mutate(rating = 0) %>% 
   rename("_id" = id)
 zero.cols = c()
-zero.cols = c("rating", "win", "loss", "abstain")
+# zero.cols = c("win", "loss", "abstain")
 ratings.df[, zero.cols] = 0
 ratings.df[, c('title', 'artist', 'album', 'preview_url')] = NA
 # ratings.list = list()
@@ -48,8 +51,8 @@ close(pb)
 # }
 # ratings.list = list("ratings" = ratings.df, "updated" = Sys.time())
 # ratings.list[['latest']] = 'true'
-ratings.json = toJSON(ratings.df) %>% 
-  str_replace_all("\\}", ',"histRate":[0],"matches":[]}')
+ratings.json = toJSON(ratings.df) #%>% 
+  # str_replace_all("\\}", ',"histRate":[0],"matches":[]}')
   
 # ratings.json = ratings.json %>% 
 #   str_replace(intToUtf8(c(91, 34)), '"') %>%  # ["

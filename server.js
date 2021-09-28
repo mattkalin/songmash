@@ -2,15 +2,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const dotenv = require('dotenv').config();
 
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({extended: true}));
 
-const uri = "mongodb+srv://mattkalin:M4rkZuck3rb3rg@songmash.uysh3.mongodb.net/SongMash?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
 
 mongoose.connect(uri);
 
-const REQUIRE_PREVIEW = true;
+const REQUIRE_PREVIEW = false;
 // true if a song must have a preview_url to be in the database
 
 // create data schema
@@ -97,12 +98,20 @@ app.get(RATINGS_DATA_URL, function(req, res){
 
 })
 
+app.get("/ids", function(req, res){
+  // let ratings = await Ratings.find().exec();
+  // res.json(ratings);
+  Ratings.find({}, "_id").then((ratings) => res.json(ratings));
+
+
+})
+
 // app.get("/songmash.html", function(req, res)){
 //
 // }
 
 app.post("/match", function(req, res){
-  console.log("POST request received")
+  // console.log("POST request received")
   try {
     // console.log(req.sjdkls.djksl); // force an error to ensure catch works
     receiveMatch(req.body);
@@ -203,6 +212,13 @@ function updateRatings(match){
   getRatings(winner, loser).then((oldRatings) => {
     // console.log("Old ratings: " + JSON.stringify(oldRatings));
     if(!abstain){
+      if(oldRatings.winner.rating === undefined){
+        oldRatings.winner.rating = 0;
+      }
+      if(oldRatings.loser.rating === undefined){
+        oldRatings.loser.rating = 0;
+      }
+
       let newRatings = eloMath(oldRatings.winner.rating, oldRatings.loser.rating);
       updateRating(oldRatings.winner, match, newRatings.winner);
       updateRating(oldRatings.loser, match, newRatings.loser);
@@ -214,6 +230,16 @@ function updateRatings(match){
 }
 
 function updateAbstain(rating, match){
+  if(rating.win === undefined){
+    rating.win = 0;
+  }
+  if(rating.loss === undefined){
+    rating.loss = 0;
+  }
+  if(rating.abstain === undefined){
+    rating.abstain = 0;
+  }
+
   rating.abstain += 1;
   rating.matches.push(match);
   return rating.save().catch((err) => {
@@ -227,13 +253,32 @@ function updateRating(rating, match, newRate){
   // let rating = await Ratings.findOne({id: id});
   rating.rating = newRate;
   try {
-    rating.histRate.push(newRate);
+    if(rating.histRate === undefined){
+      rating.histRate = [0, newRate];
+    } else {
+      rating.histRate.push(newRate);
+    }
+
   } catch (error) {
     console.log(error);
     console.log("Rating object: " + JSON.stringify(rating));
   }
+  if(rating.matches === undefined){
+    rating.matches = [match];
+  } else {
+    rating.matches.push(match);
+  }
 
-  rating.matches.push(match);
+  if(rating.win === undefined){
+    rating.win = 0;
+  }
+  if(rating.loss === undefined){
+    rating.loss = 0;
+  }
+  if(rating.abstain === undefined){
+    rating.abstain = 0;
+  }
+
   if(rating._id === match.winner){
     rating.win += 1;
   } else {
@@ -295,4 +340,5 @@ async function getRatings(winner, loser){
 
 app.listen(8000, function() {
   console.log("server is running on port 8000");
+  console.log("secret value is " + process.env.SECRET);
 })

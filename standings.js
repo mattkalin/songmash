@@ -48,6 +48,19 @@ function processRow(i, ratings){
   str += ratings[i].artist;
   str += "</td>";
 
+  if(ratings[i].win === undefined){
+    ratings[i].win = 0;
+  }
+  if(ratings[i].loss === undefined){
+    ratings[i].loss = 0;
+  }
+  if(ratings[i].abstain === undefined){
+    ratings[i].abstain = 0;
+  }
+  if(ratings[i].rating === undefined){
+    ratings[i].rating = 0;
+  }
+
   str += "<td>" + ratings[i].win + "</td>"; // win
   str += "<td>" + ratings[i].loss + "</td>"; // loss
   str += "<td>" + ratings[i].abstain + "</td>"; // abstain

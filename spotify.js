@@ -136,7 +136,7 @@ function displaySongTable(ids, token){
   var songsInfo = [];
   for(var i = 0; i < ids.length; i++){
     songsInfo[i] = getSongInfo(ids[i], token);
-    // songsInfo[i] = ratings[i]; 
+    // songsInfo[i] = ratings[i];
   }
   songTable = document.getElementById("songTable");
   tableStr = "";
@@ -357,20 +357,25 @@ function selectRandomIds(data){
   // return parseCsv(readGoogleSheet(googleToken));
 
   // just doing this with two
-  var rand1 = data[Math.floor(Math.random() * data.length)];
+  var rand1 = data[Math.floor(Math.random() * data.length)]._id;
   rand2 = rand1;
   while(rand2 === rand1){
-    rand2 = data[Math.floor(Math.random() * data.length)];
+    rand2 = data[Math.floor(Math.random() * data.length)]._id;
   }
   return [rand1, rand2];
 }
 
 function getIdData(){
-  var url = "https://raw.githubusercontent.com/mattkalin/songmash/main/song%20ids.csv";
-  var data = readCsv(url).split("\r\n");
-  if(data[0] === "id"){
-    data.shift();
-  }
+  // var url = "https://raw.githubusercontent.com/mattkalin/songmash/main/song%20ids.csv";
+  // var data = readCsv(url).split("\r\n");
+  // if(data[0] === "id"){
+  //   data.shift();
+  // }
+
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.open( "GET", "/ids", false ); // false for synchronous request
+  xmlHttp.send( null );
+  var data = JSON.parse(xmlHttp.responseText);
   return data;
 }
 

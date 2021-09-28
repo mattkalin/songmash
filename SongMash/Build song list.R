@@ -75,7 +75,8 @@
       rollingstone.search[72] = "under pressure queen"
       rollingstone.search[112] = "party up dmx"
       rollingstone.search[202] = "jungleland bruce springsteen"
-      
+      rollingstone.search[466] = "papas got a brand new bag james brown"
+      rollingstone.search[49] = "africa toto iv"
     } # search strings
     rollingstone.spotify = data.frame()
     pb = txtProgressBar(max = length(rollingstone.songs), style = 3)
