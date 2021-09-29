@@ -20,7 +20,8 @@ const matchSchema = {
   loser: String,
   abstain: Boolean,
   sentTime: Date,
-  received: Date
+  received: Date,
+  headers: String,
 }
 
 const Match = mongoose.model("Match", matchSchema, 'matches');
@@ -112,9 +113,10 @@ app.get("/ids", function(req, res){
 
 app.post("/match", function(req, res){
   // console.log("POST request received")
+  // console.log(JSON.stringify(req.headers.origin));
   try {
     // console.log(req.sjdkls.djksl); // force an error to ensure catch works
-    receiveMatch(req.body);
+    receiveMatch(req.body, req.headers);
     res.status(200).send("Match Received");
   } catch (error){
     res.status(500).send(error);
@@ -122,14 +124,15 @@ app.post("/match", function(req, res){
 
 });
 
-function receiveMatch(json){
+function receiveMatch(body, headers){
   // json is the request body
   let newMatch = new Match({
-    winner: json.winner,
-    loser: json.loser,
-    abstain: json.abstain,
-    sentTime: json.time,
-    received: Date.now()
+    winner: body.winner,
+    loser: body.loser,
+    abstain: body.abstain,
+    sentTime: body.time,
+    received: Date.now(),
+    headers: JSON.stringify(headers),
   });
   newMatch.save();//.then((match) => {
     updateRatings(newMatch); // Promise
@@ -340,5 +343,5 @@ async function getRatings(winner, loser){
 
 app.listen(8000, function() {
   console.log("server is running on port 8000");
-  console.log("secret value is " + process.env.SECRET);
+  // console.log("secret value is " + process.env.SECRET);
 })
