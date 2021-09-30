@@ -112,7 +112,7 @@ app.get("/ids", function(req, res){
 // }
 
 app.post("/match", function(req, res){
-  // console.log("POST request received")
+  console.log("POST request received")
   // console.log(JSON.stringify(req.headers.origin));
   try {
     // console.log(req.sjdkls.djksl); // force an error to ensure catch works
@@ -336,12 +336,15 @@ async function getRatings(winner, loser){
 //   }
 //   return obj.rating;
 // }
-//
+// RewriteRule (.*) http://localhost:3000/$1 [P,L]
 // function setRating(id, rate, ratings){
 //   (ratings.filter(d => d._id === id)[0]).rating = rate;
 // }
 
-app.listen(8000, function() {
-  console.log("server is running on port 8000");
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, function() {
+  console.log("server is running on port " + PORT);
+  // console.log(app);
   // console.log("secret value is " + process.env.SECRET);
 })
