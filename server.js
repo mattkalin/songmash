@@ -341,7 +341,7 @@ async function getRatings(winner, loser){
 //   (ratings.filter(d => d._id === id)[0]).rating = rate;
 // }
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, function() {
   console.log("server is running on port " + PORT);
