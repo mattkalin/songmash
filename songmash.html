@@ -5,7 +5,9 @@
     <title>Song Mash</title>
     <style media="all">
     /* desktop display */
-    .mobile-display{display: none}
+    @media (min-width: 801px){
+      .mobile-display{display: none}      
+    }
     @media (max-width: 800px){
       /* mobile display  */
       .mobile-display {display: block}
@@ -25,7 +27,7 @@
   <body>
     <h1 style="text-align: center">SongMash</h1>
     <p class="mobile-display">This is a mobile device</p>
-    <p>This is a device</p>
+    <!-- <p>This is a device</p> -->
     <center>Tap the image of the song you like better!</center>
     <br>
     <br>
