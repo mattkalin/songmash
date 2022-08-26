@@ -155,7 +155,7 @@ function displaySongTable(ids, token){
   tableStr += "<tr>";
   for(var i = 0; i < ids.length; i++){
     tableStr += "<td>";
-    tableStr += "<img src='" +
+    tableStr += "<img class='album' src='" +
     songsInfo[i].album.images[0].url +
     "' width='50%' id='albumCover" + (i) + "' >";
     tableStr += "</td>";
@@ -218,7 +218,7 @@ function displaySongTable(ids, token){
 
   // spotify link
   var spotify;
-  tableStr += "<tr>";
+  tableStr += '<tr>';
   for(var i = 0; i < ids.length; i++){
     tableStr += "<td>";
     // document.write("Album: ")
