@@ -5,18 +5,22 @@
     <title>Song Mash</title>
     <style media="all">
     /* desktop display */
-    @media (min-width: 1201px){
+    @media (min-aspect-ratio: 1/1){
+      /* width cutoff: 1200px */
+      /* aspect ratio is width/height */
+      /* landscape */
       .mobile-display{display: none}
     }
-    @media (max-width: 1200px){
+    @media (max-aspect-ratio: 1/1){
       /* mobile display  */
+      /* portrait */
       .mobile-display {display: block}
       .audio {
         width: 40%;
         height: 50;
       }
       .album {
-        /* width: 300px; */
+        width: 60%;
       }
     }
     td {
