@@ -207,7 +207,7 @@ function displaySongTable(ids, token){
     if(songsInfo[i].preview_url === null){
       audio = "No audio preview available"
     } else {
-      audio = "<audio controls width='15%' height='100'>" +
+      audio = "<audio controls >" + // width='15%' height='100'
       "<source src='" + songsInfo[i].preview_url +
       "'type='audio/mp3'>Your browser doesn't support html5 audio</audio>";
     }
