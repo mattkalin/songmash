@@ -233,9 +233,9 @@ function displaySongTable(ids, token){
   }
   tableStr += "</tr>";
   // tableStr += '<div class="mobile-display"><br><br><br><br></div>';
-  for(var i = 0; i < 5; i++){
-    tableStr += '<br class="mobile-display">';
-  }
+  // for(var i = 0; i < 5; i++){
+  //   tableStr += '<br class="mobile-display">';
+  // }
 
   // document.write("<tr>");
   // for(var i = 0; i < ids.length; i++){
