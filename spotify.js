@@ -198,24 +198,6 @@ function displaySongTable(ids, token){
   }
   tableStr += "</tr>";
 
-  // audio preview
-  var audio;
-  tableStr += "<tr>";
-  for(var i = 0; i < ids.length; i++){
-    tableStr += "<td>";
-    // document.write("Album: ")
-    if(songsInfo[i].preview_url === null){
-      audio = "No audio preview available"
-    } else {
-      audio = "<audio controls >" + // width='15%' height='100'
-      "<source src='" + songsInfo[i].preview_url +
-      "'type='audio/mp3'>Your browser doesn't support html5 audio</audio>";
-    }
-    tableStr += audio;
-    tableStr += "</td>";
-  }
-  tableStr += "</tr>";
-
   // spotify link
   var spotify;
   tableStr += '<tr>';
@@ -236,6 +218,24 @@ function displaySongTable(ids, token){
   // for(var i = 0; i < 5; i++){
   //   tableStr += '<br class="mobile-display">';
   // }
+
+  // audio preview
+  var audio;
+  tableStr += "<tr>";
+  for(var i = 0; i < ids.length; i++){
+    tableStr += "<td>";
+    // document.write("Album: ")
+    if(songsInfo[i].preview_url === null){
+      audio = "No audio preview available"
+    } else {
+      audio = "<audio controls >" + // width='15%' height='100'
+      "<source src='" + songsInfo[i].preview_url +
+      "'type='audio/mp3'>Your browser doesn't support html5 audio</audio>";
+    }
+    tableStr += audio;
+    tableStr += "</td>";
+  }
+  tableStr += "</tr>";
 
   // document.write("<tr>");
   // for(var i = 0; i < ids.length; i++){
