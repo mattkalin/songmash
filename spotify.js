@@ -232,7 +232,10 @@ function displaySongTable(ids, token){
     tableStr += "</td>";
   }
   tableStr += "</tr>";
-  tableStr += '<div class="mobile-display"><br><br><br><br></div>';
+  // tableStr += '<div class="mobile-display"><br><br><br><br></div>';
+  for(var i = 0; i < 5; i++){
+    tableStr += '<br class="mobile-display">';
+  }
 
   // document.write("<tr>");
   // for(var i = 0; i < ids.length; i++){
