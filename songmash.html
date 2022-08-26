@@ -24,6 +24,7 @@
   </head>
   <body>
     <h1 style="text-align: center">SongMash</h1>
+    <p class="mobile-display">This is a mobile device</p>
     <center>Tap the image of the song you like better!</center>
     <br>
     <br>
@@ -38,7 +39,7 @@
     var ratings = getRatings();
     var songList = getIdData();
     // var ratingsJson = getRatingsData();
-    var ids = selectRandomIds(songList);
+    var ids = selectRandomIds(songList)
     displaySongTable(ids, token);
 
     </script>
