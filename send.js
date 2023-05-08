@@ -25,7 +25,7 @@ function abstain(){
 
 function sendDataAndRefresh(data){
   // console.log("Sending post request");
-  fetch("/match", {
+  fetch("./match", {
     // the "/..." doesn't really matter, just has to match the one in server.js
     method: "post",
     body: JSON.stringify(data),

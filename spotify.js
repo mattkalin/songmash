@@ -377,7 +377,7 @@ function getIdData(){
   // }
 
   var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open( "GET", "/ids", false ); // false for synchronous request
+  xmlHttp.open( "GET", "./ids", false ); // false for synchronous request
   xmlHttp.send( null );
   var data = JSON.parse(xmlHttp.responseText);
   return data;

@@ -54,19 +54,19 @@ const Ratings = mongoose.model("Ratings", ratingsSchema, 'ratings');
 
 app.use(express.static(__dirname)); // access other files in this directory
 
-const MATCHUP_PAGE = "/songmash";
+const MATCHUP_PAGE = "./songmash";
 
 app.get(MATCHUP_PAGE, function(req, res){
   // console.log("Directory: " + __dirname);
-  res.sendFile(__dirname + "/songmash.html");
+  res.sendFile(__dirname + "./songmash.html");
 })
 
-app.get("/", function(req, res){
+app.get("./", function(req, res){
   res.redirect(MATCHUP_PAGE);
 })
 
-const STANDINGS_PAGE = "/standings";
-const RATINGS_DATA_URL = "/ratings";
+const STANDINGS_PAGE = "./standings";
+const RATINGS_DATA_URL = "./ratings";
 
 app.get(STANDINGS_PAGE, function(req, res){
   // var xmlHttp = new XMLHttpRequest();
@@ -82,7 +82,7 @@ app.get(STANDINGS_PAGE, function(req, res){
   //     }),
   // });
 
-  res.sendFile(__dirname + "/standings.html");
+  res.sendFile(__dirname + "./standings.html");
 })
 
 app.get(RATINGS_DATA_URL, function(req, res){
@@ -99,7 +99,7 @@ app.get(RATINGS_DATA_URL, function(req, res){
 
 })
 
-app.get("/ids", function(req, res){
+app.get("./ids", function(req, res){
   // let ratings = await Ratings.find().exec();
   // res.json(ratings);
   Ratings.find({}, "_id").then((ratings) => res.json(ratings));
@@ -111,7 +111,7 @@ app.get("/ids", function(req, res){
 //
 // }
 
-app.post("/match", function(req, res){
+app.post("./match", function(req, res){
   console.log("POST request received")
   // console.log(JSON.stringify(req.headers.origin));
   try {
