@@ -1,4 +1,4 @@
-const RATINGS_DATA_URL = "/ratings";
+const RATINGS_DATA_URL = "./ratings";
 
 function getRatings(){
   var xmlHttp = new XMLHttpRequest();
