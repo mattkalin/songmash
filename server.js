@@ -88,6 +88,7 @@ app.get(STANDINGS_PAGE, function(req, res){
 app.get(RATINGS_DATA_URL, function(req, res){
   // let ratings = await Ratings.find().exec();
   // res.json(ratings);
+  console.log("Attempting to load ratings from mongodb"); 
   if(REQUIRE_PREVIEW){
     Ratings.find({
       "preview_url": {"$exists": true},
