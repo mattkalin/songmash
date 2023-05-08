@@ -16,6 +16,8 @@ function getSongInfo(id, token) {
 function getSpotifyToken(){
   // appears to be working!
 
+  console.log("Getting Spotify token")
+
   var userID = "xu75up5apc30lijbveflhr5fq"
   var clientID = "c0f873e96499462dab95ca2ec86cc9ea"
   var clientSecret = "35f220698fce424e84190844c8691ff3"
