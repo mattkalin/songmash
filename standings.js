@@ -2,9 +2,11 @@ const RATINGS_DATA_URL = "./ratings";
 
 function getRatings(){
   var xmlHttp = new XMLHttpRequest();
+  console.log("Ratings url: " + RATINGS_DATA_URL);
   xmlHttp.open("GET", RATINGS_DATA_URL, false);
   xmlHttp.send( null );
   // document.write(xmlHttp.responseText);
+  console.log("Ratings response text: " + xmlHttp.responseText); 
   return JSON.parse(xmlHttp.responseText);
 }
 
